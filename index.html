@@ -11,52 +11,58 @@
             background: black; 
             border: 1px solid white; 
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            /* Reduced height for square feel */
+            height: 300px; 
+            display: flex;
+            flex-direction: column;
         }
         .input-bg { background: #0a0a0a; border: 1px solid #404040; color: white; }
         .input-bg:focus { border-color: white; outline: none; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: white; }
+        /* Scrollbar styles */
+        #birthday-list::-webkit-scrollbar { width: 4px; }
+        #birthday-list::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        #birthday-list::-webkit-scrollbar-thumb:hover { background: white; }
     </style>
 </head>
 <body class="p-4 min-h-screen flex items-center justify-center">
 
     <div id="birthday-widget" class="widget-container w-full max-w-[280px] p-4 rounded-lg text-white">
-        <h1 class="text-[10px] font-bold uppercase tracking-widest text-white mb-4 flex items-center gap-2">
-            🎂 B I R T H D A Y S
-        </h1>
+        <!-- Top Section: Fixed -->
+        <div class="flex-none">
+            <h1 class="text-[10px] font-bold uppercase tracking-widest text-white mb-2 flex items-center gap-2">
+                🎂 B I R T H D A Y S
+            </h1>
 
-        <h2 class="text-[10px] font-bold uppercase tracking-widest text-white mb-3 flex items-center gap-2">
-            🎂 N E X T  B I R T H D A Y S
-        </h2>
-
-        <div class="space-y-2 mb-4">
-            <div class="flex gap-1">
-                <input id="username" type="text" placeholder="Username" class="w-full p-2 text-xs rounded input-bg focus:ring-1 focus:ring-white outline-none">
-                <select id="month" class="p-2 text-xs rounded input-bg outline-none">
-                    <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
-                    <option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option>
-                    <option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option>
-                    <option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option>
-                </select>
-                <select id="day" class="p-2 text-xs rounded input-bg outline-none">
-                    <!-- JS fills this -->
-                </select>
+            <div class="space-y-1.5 mb-2">
+                <div class="flex gap-1">
+                    <input id="username" type="text" placeholder="User" class="w-full p-1.5 text-[10px] rounded input-bg outline-none">
+                    <select id="month" class="p-1.5 text-[10px] rounded input-bg outline-none">
+                        <option value="0">Jan</option><option value="1">Feb</option><option value="2">Mar</option>
+                        <option value="3">Apr</option><option value="4">May</option><option value="5">Jun</option>
+                        <option value="6">Jul</option><option value="7">Aug</option><option value="8">Sep</option>
+                        <option value="9">Oct</option><option value="10">Nov</option><option value="11">Dec</option>
+                    </select>
+                    <select id="day" class="p-1.5 text-[10px] rounded input-bg outline-none">
+                        <!-- JS fills this -->
+                    </select>
+                </div>
+                <input id="note" type="text" placeholder="Note (optional)" class="w-full p-1.5 text-[10px] rounded input-bg outline-none">
+                
+                <button onclick="saveBirthday()" class="w-full bg-black hover:bg-white hover:text-black border border-white text-white font-bold py-1 rounded text-[9px] transition-all">
+                    SAVE
+                </button>
+                <div id="error-msg" class="text-red-500 text-[8px] hidden">Username already saved!</div>
             </div>
-            <input id="note" type="text" placeholder="Note (optional)" class="w-full p-2 text-xs rounded input-bg focus:ring-1 focus:ring-white outline-none">
-            <button onclick="saveBirthday()" class="w-full bg-black hover:bg-white hover:text-black border border-white text-white font-bold py-2 rounded text-xs transition-all duration-300">
-                SAVE BIRTHDAY
-            </button>
-            <div id="error-msg" class="text-red-500 text-[10px] hidden">Username already saved!</div>
-        </div>
 
-        <div id="birthday-list" class="space-y-1 max-h-72 overflow-y-auto pr-1">
+            <h2 class="text-[8px] font-bold uppercase tracking-widest text-gray-400 mb-1 border-b border-gray-800 pb-0.5">
+                UPCOMING
+            </h2>
+        </div>
+        
+        <!-- Scrolling Section -->
+        <div id="birthday-list" class="space-y-0.5 overflow-y-auto pr-1 flex-grow">
             <!-- Items injected here -->
         </div>
-
-        <p class="text-center text-[9px] text-gray-500 mt-4 border-t border-gray-800 pt-3">
-            Credits to <span class="text-white">@EliteBacon09</span> for the idea
-        </p>
     </div>
 
     <script>
@@ -71,17 +77,17 @@
 
         async function saveBirthday() {
             const usernameInput = document.getElementById('username');
+            const noteInput = document.getElementById('note');
             const username = usernameInput.value.trim();
             const month = document.getElementById('month').value;
             const day = document.getElementById('day').value;
-            const note = document.getElementById('note').value;
+            const note = noteInput.value.trim();
             const errorDiv = document.getElementById('error-msg');
 
             if(!username) return;
 
             const isDuplicate = birthdays.some(b => b.username.toLowerCase() === username.toLowerCase());
             if(isDuplicate) {
-                errorDiv.textContent = "Username already saved!";
                 errorDiv.classList.remove('hidden');
                 return;
             } else {
@@ -99,8 +105,7 @@
             localStorage.setItem('birthdays', JSON.stringify(birthdays));
             
             usernameInput.value = '';
-            document.getElementById('note').value = '';
-            
+            noteInput.value = '';
             renderList();
         }
 
@@ -124,12 +129,12 @@
                 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                 
                 const div = document.createElement('div');
-                div.className = "flex items-center p-2 rounded border border-transparent hover:border-white hover:shadow-[0_0_8px_white] transition-all cursor-pointer";
+                div.className = "flex items-center p-1 rounded hover:bg-gray-900 transition-all cursor-pointer";
                 div.innerHTML = `
-                    <img src="${b.avatar}" class="w-8 h-8 rounded-full mr-3 border border-gray-600">
+                    <img src="${b.avatar}" class="w-6 h-6 rounded-full mr-2 border border-gray-600">
                     <div class="overflow-hidden">
-                        <div class="text-[11px] font-medium text-white truncate">${b.username}</div>
-                        <div class="text-[9px] text-gray-400">${monthNames[b.month]} ${b.day} · <span class="text-white">in ${days} days</span></div>
+                        <div class="text-[9px] font-bold text-white truncate">${b.username}</div>
+                        <div class="text-[7px] text-gray-500">${monthNames[b.month]} ${b.day} • ${days} days ${b.note ? '• ' + b.note : ''}</div>
                     </div>
                 `;
                 container.appendChild(div);
